@@ -14,12 +14,14 @@
 # You should have received a copy of the GNU Affero General Public
 # License along with this program.  If not, see
 # <http://www.gnu.org/licenses/agpl.html>.
-
+import inspect
+import argparse
 import sys
 import os
 import optparse
 import re
-from cgi import escape
+from html import escape
+#from cgi import escape
 import posixpath
 import wsgiref.util
 import time
@@ -28,19 +30,20 @@ import math
 import logging
 import json
 
-import version
-import DataStore
-import readconf
+#import version
+#from version import __version__
+import Abe.DataStore as DataStore
+import Abe.readconf as readconf
 
 # bitcointools -- modified deserialize.py to return raw transaction
-import deserialize
-import util  # Added functions.
-import base58
+import Abe.deserialize
+import Abe.util  # Added functions.
+import Abe.base58
 
-__version__ = version.__version__
+#__version__ = version.__version__
 
 ABE_APPNAME = "Abe"
-ABE_VERSION = __version__
+#ABE_VERSION = __version__
 ABE_URL = 'https://github.com/bitcoin-abe/bitcoin-abe'
 
 COPYRIGHT_YEARS = '2011'
@@ -154,7 +157,7 @@ MAX_UNSPENT_ADDRESSES = 200
 
 def make_store(args):
     store = DataStore.new(args)
-    if (not args.no_load):
+    if (not args.__dict__['func_dict']['no_load']):
         store.catch_up()
     return store
 
@@ -253,7 +256,7 @@ class Abe:
             page['body'] = ['<p class="error">Sorry, ', env['SCRIPT_NAME'],
                             env['PATH_INFO'],
                             ' does not exist on this server.</p>']
-        except NoSuchChainError, e:
+        except NoSuchChainError as e:
             page['body'] += [
                 '<p class="error">'
                 'Sorry, I don\'t know about that chain!</p>\n']
@@ -1838,7 +1841,7 @@ def decode_script(script):
         return ''
     try:
         return deserialize.decode_script(script)
-    except KeyError, e:
+    except KeyError as e:
         return 'Nonstandard script'
 
 def b58hex(b58):
@@ -1903,11 +1906,11 @@ def serve(store):
             pass
         import urlparse
         parsed = urlparse.urlparse(args.query)
-        print abe({
+        print (abe({
                 'SCRIPT_NAME':  '',
                 'PATH_INFO':    parsed.path,
                 'QUERY_STRING': parsed.query
-                }, start_response)
+                }, start_response))
     elif args.host or args.port:
         # HTTP server.
         if args.host is None:
@@ -1950,7 +1953,7 @@ def process_is_alive(pid):
     try:
         os.kill(pid, 0)
         return True
-    except OSError, e:
+    except OSError as e:
         if e.errno == errno.EPERM:
             return True  # process exists, but we can't send it signals.
         if e.errno == errno.ESRCH:
@@ -2035,7 +2038,7 @@ def create_conf():
         "template_vars": {
             "ABE_URL": ABE_URL,
             "APPNAME": ABE_APPNAME,
-            "VERSION": ABE_VERSION,
+            #"VERSION": ABE_VERSION,
             "COPYRIGHT": COPYRIGHT,
             "COPYRIGHT_YEARS": COPYRIGHT_YEARS,
             "COPYRIGHT_URL": COPYRIGHT_URL,
@@ -2049,7 +2052,12 @@ def create_conf():
     return conf
 
 def main(argv):
+
+
+
     if argv[0] == '--show-policy':
+        print(argv[0])
+        time.sleep(10000)
         for policy in argv[1:] or list_policies():
             show_policy(policy)
         return 0
@@ -2059,63 +2067,74 @@ def main(argv):
             print("  %s" % name)
         return 0
 
-    args, argv = readconf.parse_argv(argv, create_conf())
 
+    args, argv = readconf.parse_argv(argv, create_conf())
+    
     if not argv:
         pass
-    elif argv[0] in ('-h', '--help'):
+
+
+
+    elif sys.argv[0] in ('-h', '--help'):
         print ("""Usage: python -m Abe.abe [-h] [--config=FILE] [--CONFIGVAR=VALUE]...
 
-A Bitcoin block chain browser.
+#A Bitcoin block chain browser.
 
-  --help                    Show this help message and exit.
-  --version                 Show the program version and exit.
-  --print-htdocs-directory  Show the static content directory name and exit.
-  --list-policies           Show the available policy names for --datadir.
-  --show-policy POLICY...   Describe the given policy.
-  --query /q/COMMAND        Show the given URI content and exit.
-  --config FILE             Read options from FILE.
+  #--help                    Show this help message and exit.
+  #--version                 Show the program version and exit.
+  #--print-htdocs-directory  Show the static content directory name and exit.
+  #--list-policies           Show the available policy names for --datadir.
+  #--show-policy POLICY...   Describe the given policy.
+  #--query /q/COMMAND        Show the given URI content and exit.
+  #--config FILE             Read options from FILE.
 
-All configuration variables may be given as command arguments.
-See abe.conf for commented examples.""")
+#All configuration variables may be given as command arguments.
+#See abe.conf for commented examples.""")
         return 0
-    elif argv[0] in ('-v', '--version'):
-        print ABE_APPNAME, ABE_VERSION
-        print "Schema version", DataStore.SCHEMA_VERSION
+    elif argv in ('-v', '--version'):
+        print (ABE_APPNAME, ABE_VERSION)
+        print ("Schema version", DataStore.SCHEMA_VERSION)
         return 0
-    elif argv[0] == '--print-htdocs-directory':
-        print find_htdocs()
+    elif argv == '--print-htdocs-directory':
+        print (find_htdocs())
         return 0
     else:
         sys.stderr.write(
             "Error: unknown option `%s'\n"
             "See `python -m Abe.abe --help' for more information.\n"
-            % (argv[0],))
+            % (argv,))
         return 1
+
+
+    #print(dir(args))
+    #time.sleep(10000)
+
+
+
 
     logging.basicConfig(
         stream=sys.stdout,
-        level = logging.DEBUG if args.query is None else logging.ERROR,
+        level = logging.DEBUG if args.__dict__['func_dict']['query'] is None else logging.ERROR,
         format=DEFAULT_LOG_FORMAT)
-    if args.logging is not None:
+    if args.__dict__['func_dict']['logging'] is not None:
         import logging.config as logging_config
         logging_config.dictConfig(args.logging)
 
     # Set timezone
-    if args.timezone:
-        os.environ['TZ'] = args.timezone
+    if args.__dict__['func_dict']['timezone']:
+        os.environ['TZ'] = args.__dict__['func_dict']['timezone']
 
-    if args.auto_agpl:
+    if args.__dict__['func_dict']['auto_agpl']:
         import tarfile
 
     # --rpc-load-mempool loops forever, make sure it's used with
     # --no-load/--no-serve so users know the implications
-    if args.rpc_load_mempool and not (args.no_load or args.no_serve):
+    if args.__dict__['func_dict']['rpc_load_mempool'] and not (args.__dict__['func_dict']['no_load'] or args.__dict__['func_dict']['no_serve']):
         sys.stderr.write("Error: --rpc-load-mempool requires --no-serve\n")
         return 1
 
     store = make_store(args)
-    if (not args.no_serve):
+    if (not args.__dict__['func_dict']['no_serve']):
         serve(store)
     return 0
 

@@ -20,8 +20,9 @@
 #
 
 import re
-import base58
-import Crypto.Hash.SHA256 as SHA256
+import Abe.base58
+from Crypto.Hash import SHA256 as SHA256#you need to install pycrypto: https://pypi.python.org/pypi/pycrypto
+#import Crypto.Hash.SHA256 as SHA256
 
 try:
     import Crypto.Hash.RIPEMD as RIPEMD160
@@ -179,7 +180,7 @@ class CmdLine(object):
 
         args, argv = readconf.parse_argv(self.argv, self.conf, strict=False)
         if argv and argv[0] in ('-h', '--help'):
-            print self.usage()
+            print(self.usage())
             return None, []
 
         logging.basicConfig(

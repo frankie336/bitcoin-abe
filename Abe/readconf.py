@@ -118,7 +118,7 @@ def _include(seen, filename, conf, config_name, strict):
         rdr = _Reader(fp)
         try:
             entries = read(rdr)
-        except SyntaxError, e:
+        except SyntaxError as e:
             if e.filename is None:
                 e.filename = filename
             if e.lineno is None:
@@ -199,7 +199,7 @@ def read(rdr):
             js = scan_json(rdr)
             try:
                 store(name, parse_json(js), additive)
-            except ValueError, e:
+            except ValueError as e:
                 raise wrap_json_error(rdr, js, e)
             continue
 
@@ -328,7 +328,7 @@ def json_line1_column_bug():
     ret = False
     try:
         parse_json("{:")
-    except ValueError, e:
+    except ValueError as e:
         if "column 1" in e.message:
             ret = True
     finally:

@@ -75,9 +75,17 @@ class SqlAbstraction(object):
         def rev(x):
             return None if x is None else x[::-1]
         def to_hex(x):
-            return None if x is None else str(x).encode('hex')
+
+            return None if x is None else str(x).encode().hex()
+            #return None if x is None else str(x).encode('hex')
         def from_hex(x):
-            return None if x is None else x.decode('hex')
+
+            return None if x is None else x == x
+            #return None if x is None else x.decode('hex')
+
+
+
+
         def to_hex_rev(x):
             return None if x is None else str(x)[::-1].encode('hex')
         def from_hex_rev(x):
@@ -899,7 +907,7 @@ class SqlAbstraction(object):
                   FROM %stest_1""" % (sql.prefix, sql.prefix))
             v1 = 2099999999999999
             v2 = 1234567890
-            v3 = 12345678901234567890L
+            v3 = 12345678901234567890
             sql.sql("INSERT INTO %stest_1 (test_id, i1, i2, i3)"
                     " VALUES (?, ?, ?, ?)" % sql.prefix,
                     (1, sql.intin(v1), v2, sql.intin(v3)))

@@ -2,7 +2,7 @@
 # Workalike python implementation of Bitcoin's CDataStream class.
 #
 import struct
-import StringIO
+from io import StringIO
 import mmap
 
 class SerializationError(Exception):
@@ -81,7 +81,7 @@ class BCDataStream(object):
   def write_uint64 (self, val): return self._write_num('<Q', val)
 
   def read_compact_size(self):
-    size = ord(self.input[self.read_cursor])
+    size = self.input[self.read_cursor]
     self.read_cursor += 1
     if size == 253:
       size = self._read_num('<H')

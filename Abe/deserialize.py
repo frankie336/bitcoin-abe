@@ -2,13 +2,13 @@
 #
 #
 
-from BCDataStream import *
-from enumeration import Enumeration
-from base58 import public_key_to_bc_address, hash_160_to_bc_address
+from Abe.BCDataStream import *
+from Abe.enumeration import Enumeration
+from Abe.base58 import public_key_to_bc_address, hash_160_to_bc_address
 import logging
 import socket
 import time
-from util import short_hex, long_hex
+from Abe.util import short_hex, long_hex
 import struct
 
 def parse_CAddress(vds):
@@ -79,6 +79,7 @@ def deserialize_TxOut(d, owner_keys=None):
   return result
 
 def parse_Transaction(vds, has_nTime=False):
+  xrange = range
   d = {}
   start_pos = vds.read_cursor
   d['version'] = vds.read_int32()

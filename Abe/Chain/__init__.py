@@ -75,6 +75,7 @@ class BaseChain(object):
         return deserialize.parse_Transaction(ds)
 
     def ds_parse_block(chain, ds):
+        xrange = range
         d = chain.ds_parse_block_header(ds)
         d['transactions'] = []
         nTransactions = ds.read_compact_size()
@@ -146,6 +147,7 @@ class BaseChain(object):
         while len(hashes) > 1:
             size = len(hashes)
             out = []
+            xrange = range
             for i in xrange(0, size, 2):
                 i2 = min(i + 1, size - 1)
                 out.append(chain.merkle_hash(hashes[i] + hashes[i2]))
